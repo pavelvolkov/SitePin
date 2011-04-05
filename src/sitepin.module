@@ -1,0 +1,222 @@
+<?php
+define('SITEPIN_ADVERTISE_MSG_TEXT', '<p>Drag the site icon to the taskbar to pin site</p>');
+define('SITEPIN_TOOLTIP_TEXT', 'This is grate site created using Drupal.');
+/**
+ * Implements hook_help.
+ * Displays help and module information
+ * @param path which path of the site we're displaying help
+ * @param arg array that holds the current path as would be returned from arg() function
+ */
+function sitepin_help($path, $arg) {
+  switch ($path) {
+    case "admin/help#sitepin":
+      return '<p>'.  t("Adds support for Internet Explorer 9 new feature named Pinned Sites") .'</p>';
+      break;
+  }
+}
+
+/**
+ * Alter XHTML HEAD tags before they are rendered by drupal_get_html_head().
+ * @param array $head_elements
+ */
+function sitepin_html_head_elements(&$head_elements) {
+  foreach ($head_elements as $key => $value) {
+    // модификация существующих тэгов
+  }
+  /**
+   * Pin Meta Tags
+   *
+   * application-name: If you don’t give your shortcut a name, the page
+   * title is used instead.
+   *
+   * msapplication-tooltip: Optional text that is displayed as a tooltip
+   * when the mouse pointer hovers over the Pinned Site shortcut icon.
+   *
+   * msapplication-starturl: The root URL of the application. If missing,
+   * the address of the current page is used instead. Only HTTP, HTTPS,
+   * or FTP protocols are allowed.
+   *
+   * msapplication-navbutton-color: The color of the Back and Forward
+   * buttons in the Pinned Site browser window.
+   *
+   * msapplication-window: The initial size of the Pinned Site browser window.
+   *
+   */
+}
+
+/**
+ * Perform setup tasks.
+ * We need this hook to know client browser's name and version
+ * to add meta tags and javascript.
+ */
+function sitepin_boot() {
+  // IE9 detection
+  if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 9') !== FALSE) {
+    
+  }
+}
+
+/**
+ * Implements hook_permission
+ * This hook can supply permissions that the module defines, so that they
+ * can be selected on the user permissions page and used to grant or
+ * restrict access to actions the module performs.
+ * @return array
+ */
+function sitepin_permission() {
+  return array(
+    'edit sitepin settings' => array(
+      'title'       => t('Modify SitePin Settings'),
+      'description' => t('Perform administration tasks for SitePin module.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu
+ * @return array $items
+ */
+function sitepin_menu() {
+  $items = array();
+  $items['admin/config/search/sitepin'] = array(
+    'title'            => 'SitePin settings',
+    'description'      => 'Configuration for the SitePin module.',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('sitepin_settings_basic_form'),
+    'access arguments' => array('edit sitepin settings'),
+    'type'             => MENU_NORMAL_ITEM,
+  	'weight' => -10,
+  );
+  $items['admin/config/search/sitepin/settings'] = array(
+    'title' => 'Settings',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  $items['admin/config/search/sitepin/tasks'] = array(
+    'title'            => 'Tasks',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('sitepin_settings_tasks_form'),
+    'access arguments' => array('edit sitepin settings'),
+    'type'             => MENU_LOCAL_TASK,
+  );
+  return $items;
+}
+
+/**
+ * Task Settings Page Generator
+ */
+function sitepin_settings_tasks_page() {
+  $output = '<p>' .t('These properties apply to any one using the site when it is pinned and appear in the category named Tasks. The items in this list tend to remain the same regardless of the state or status of the application.') .'</p>';
+  return $output;
+}
+
+/**
+ * Form. Basic Settings
+ */
+function sitepin_settings_basic_form($form, &$form_state) {
+
+  // Adding form specific CSS to the page
+  $path = drupal_get_path('module', 'sitepin');
+  $options = array(
+    'group' => CSS_DEFAULT,
+    'media' => 'screen',
+  );
+  drupal_add_css($path. '/sitepin.css', $options);
+
+  // Describe form
+  $form['sitepin_intro_text'] =array(
+    '#markup' => '<p>' .t('SitePin module enables support of Pinned Site feature introduced in Internet Explorer 9 for Windows 7 and Vista.') .'</p>',
+  );
+  $form['sitepin_enabled'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable SitePin'),
+    '#default_value' => variable_get('sitepin_enabled', TRUE),
+  );
+  $form['sitepin_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Pinned Site Name'),
+    '#default_value' => variable_get('sitepin_name', FALSE),
+  );
+  $form['sitepin_tooltip'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Tooltip'),
+    '#default_value' => variable_get('sitepin_tooltip', SITEPIN_TOOLTIP_TEXT),
+  // Код ниже не работает
+  //'#text_format' => isset($edit->format) ? $edit->format : FILTER_FORMAT_DEFAULT,
+  );
+  $form['sitepin_start_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Start URL'),
+  	'#description' => t('Relative or absolute path allowed.'),
+    '#default_value' => variable_get('sitepin_start_url', FALSE),
+  );
+  $form['sitepin_window'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Window Size'),
+  );
+  $form['sitepin_window']['sitepin_window_width'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Width'),
+    '#default_value' => variable_get('sitepin_window_width', '800'),
+    '#field_suffix' => t('px'),
+    '#size' => '6',
+  );
+  $form['sitepin_window']['sitepin_window_height'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Height'),
+    '#default_value' => variable_get('sitepin_window_height', '600'),
+    '#field_suffix' => t('px'),
+    '#size' => '6',
+  );
+  $form['sitepin_color'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Navigation Button Color'),
+    '#default_value' => variable_get('sitepin_color', FALSE),
+    '#attached' => array(
+      // Add Farbtastic color picker.
+      'library' => array(
+        array('system', 'farbtastic'),
+      ),
+    ),
+    '#field_prefix' => t('#'),
+    '#size' => '6',
+    '#maxlength' => '6',
+  );
+  // Promt box settings fields
+  $form['sitepin_advertise'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Advertise to pin the site'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  // Switch to turn on/off promt box 
+  $form['sitepin_advertise']['sitepin_advertise_switch'] = array(
+    '#type' => 'checkbox',
+  	'#title' => t('Enable confirmation bar'),
+    '#description' => t('When enabled IE9 users will see promt box at the top of your website which they can drag to there taskbar to pin website.'),
+    '#default_value' => variable_get('sitepin_advertise_switch', TRUE),
+  );
+  // Promt box text
+  $form['sitepin_advertise']['sitepin_advertise_msg'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Message'),
+    '#description' => t('Confermation box text. HTML code allowed.'),
+    '#default_value' => variable_get('sitepin_advertise_msg', SITEPIN_ADVERTISE_MSG_TEXT),
+  );
+  return system_settings_form($form);
+}
+
+/**
+ * Generates form for configuring static tasks.
+ * @param $form
+ * @param $form_state
+ * @return unknown_type
+ */
+function sitepin_settings_tasks_form($form, &$form_state) {
+  $form['sitepin_task_title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Task Name'),
+    '#default_value' => variable_get('sitepin_task_title', FALSE),
+  );
+  return $form;
+}

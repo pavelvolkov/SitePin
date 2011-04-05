@@ -1,0 +1,15 @@
+<?php
+/**
+ * @file 
+ * Tests for the SitePin module
+ */
+
+class FormTestCase extends DrupalWebTestCase {
+	public function getInfo() {
+		return array(
+			'name' => 'Basic module settings form test',
+			'description' => 'Test basic settings form in SitePin module.',
+			'group' => 'SitePin',
+		);
+	}
+}

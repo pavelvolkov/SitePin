@@ -1,0 +1,6 @@
+name = SitePin
+description = Adds support for Internet Explorer 9 new feature named Pinned Sites.
+core = 7.x
+version = 1.0a
+files[] = sitepin.module
+#files[] = sitepin.test
